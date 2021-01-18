@@ -1,0 +1,20 @@
+{
+    "name": "tolkam/html-processor",
+    "description": "Processes HTML applying custom transformations",
+    "type": "library",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Tolkam\\HTMLProcessor\\": "src"
+        }
+    },
+    "require": {
+        "php": ">=7.4",
+        "tolkam/dom-manipulator": "^1.0@dev"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
