@@ -54,24 +54,26 @@ class HTMLProcessor implements MiddlewareHandlerInterface
     }
     
     /**
-     * @param string $html
+     * @param string     $html
+     * @param mixed|null $context - Arbitrary context to pass to middlewares
      *
      * @return string
+     * @throws HTMLProcessorException
      */
-    public function process(string $html): string
+    public function process(string $html, $context = null): string
     {
-        return $this->load($html)->outerHtml();
+        return $this->load($html, $context)->outerHtml();
     }
     
     /**
      * Parses html string applying middlewares
      *
      * @param string $html
+     * @param null   $context - Arbitrary context to pass to middlewares
      *
      * @return Manipulator
-     * @throws HTMLProcessorException
      */
-    public function load(string $html): Manipulator
+    public function load(string $html, $context = null): Manipulator
     {
         try {
             $dom = new Manipulator($html);
@@ -81,7 +83,7 @@ class HTMLProcessor implements MiddlewareHandlerInterface
                 );
             }
             
-            $dom = $this->handle($dom);
+            $dom = $this->handle($dom, $context ?? new Context);
         } catch (Throwable $t) {
             if (!!$this->options['throwOnError']) {
                 throw $t;
@@ -99,7 +101,7 @@ class HTMLProcessor implements MiddlewareHandlerInterface
     /**
      * @inheritDoc
      */
-    public function handle(Manipulator $dom): Manipulator
+    public function handle(Manipulator $dom, Context $context): Manipulator
     {
         if ($this->middlewares->isEmpty()) {
             return $dom;
@@ -107,6 +109,6 @@ class HTMLProcessor implements MiddlewareHandlerInterface
         /** @var MiddlewareInterface $next */
         $next = $this->middlewares->dequeue();
         
-        return $next->apply($dom, $this);
+        return $next->apply($dom, $this, $context);
     }
 }

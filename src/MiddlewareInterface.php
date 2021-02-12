@@ -11,11 +11,13 @@ interface MiddlewareInterface
      *
      * @param Manipulator                $dom
      * @param MiddlewareHandlerInterface $middlewareHandler
+     * @param Context|null               $context
      *
      * @return Manipulator
      */
     public function apply(
         Manipulator $dom,
-        MiddlewareHandlerInterface $middlewareHandler
+        MiddlewareHandlerInterface $middlewareHandler,
+        Context $context
     ): Manipulator;
 }

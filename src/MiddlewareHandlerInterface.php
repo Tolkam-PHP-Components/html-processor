@@ -8,8 +8,9 @@ interface MiddlewareHandlerInterface
 {
     /**
      * @param Manipulator $dom
+     * @param Context     $context - Arbitrary context to pass to middlewares
      *
      * @return Manipulator
      */
-    public function handle(Manipulator $dom): Manipulator;
+    public function handle(Manipulator $dom, Context $context): Manipulator;
 }

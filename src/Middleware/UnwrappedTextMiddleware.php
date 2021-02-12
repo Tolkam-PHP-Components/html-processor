@@ -3,6 +3,7 @@
 namespace Tolkam\HTMLProcessor\Middleware;
 
 use Tolkam\DOM\Manipulator\Manipulator;
+use Tolkam\HTMLProcessor\Context;
 use Tolkam\HTMLProcessor\MiddlewareHandlerInterface;
 use Tolkam\HTMLProcessor\MiddlewareInterface;
 
@@ -38,7 +39,8 @@ class UnwrappedTextMiddleware implements MiddlewareInterface
      */
     public function apply(
         Manipulator $dom,
-        MiddlewareHandlerInterface $middlewareHandler
+        MiddlewareHandlerInterface $middlewareHandler,
+        Context $context
     ): Manipulator {
         // replace in body or first root
         $xPathRoot = $dom->isHtmlDocument() ? '//body' : '//*[1]';
@@ -60,6 +62,6 @@ class UnwrappedTextMiddleware implements MiddlewareInterface
             }
         }
         
-        return $middlewareHandler->handle($dom);
+        return $middlewareHandler->handle($dom, $context);
     }
 }
