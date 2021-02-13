@@ -4,7 +4,11 @@ namespace Tolkam\HTMLProcessor;
 
 use ArrayAccess;
 use ArrayIterator;
+use InvalidArgumentException;
 use IteratorAggregate;
+use RuntimeException;
+use Throwable;
+use TypeError;
 
 class Context implements ArrayAccess, IteratorAggregate
 {
@@ -53,18 +57,37 @@ class Context implements ArrayAccess, IteratorAggregate
     }
     
     /**
-     * @param string|null $key
-     * @param null        $default
+     * @param string|null   $key
+     * @param null          $default
+     * @param callable|null $validator
      *
      * @return mixed|null
      */
-    public function get(string $key = null, $default = null)
+    public function get(string $key = null, $default = null, callable $validator = null)
     {
         if ($key === null) {
             return $this->data;
         }
         
-        return $this->data[$key] ?? $default;
+        return $this->validateValue($key, $this->data[$key], $validator) ?? $default;
+    }
+    
+    /**
+     * @param string        $key
+     * @param callable|null $validator
+     *
+     * @return mixed
+     */
+    public function getRequired(string $key, callable $validator = null)
+    {
+        if (!isset($this->data[$key]) && !array_key_exists($key, $this->data)) {
+            throw new InvalidArgumentException(sprintf(
+                'Required context value for "%s" is not set',
+                $key
+            ));
+        }
+        
+        return $this->validateValue($key, $this->data[$key], $validator);
     }
     
     /**
@@ -105,5 +128,41 @@ class Context implements ArrayAccess, IteratorAggregate
     public function offsetUnset($offset)
     {
         unset($this->data[$offset]);
+    }
+    
+    /**
+     * @param string        $key
+     * @param               $value
+     * @param callable|null $validator
+     *
+     * @return mixed
+     */
+    private function validateValue(string $key, $value, callable $validator = null)
+    {
+        if (!$validator) {
+            return $value;
+        }
+        
+        $message = sprintf('Value for "%s" did not pass supplied validator', $key);
+        
+        try {
+            $result = $validator($value);
+            
+            if ($result === false) {
+                throw new TypeError($message);
+            }
+            
+            return $value;
+        } catch (Throwable $t) {
+            $thrownMessage = $t->getMessage();
+            if ($thrownMessage !== $message) {
+                $message .= ' (' . $thrownMessage . ')';
+            }
+            
+            throw new RuntimeException(sprintf(
+                $message,
+                $key
+            ));
+        }
     }
 }
