@@ -83,7 +83,13 @@ class HTMLProcessor implements MiddlewareHandlerInterface
                 );
             }
             
+            // copy middlewares
+            $middlewares = clone $this->middlewares;
             $dom = $this->handle($dom, $context ?? new Context);
+            
+            // set middlewares again so multiple calls of `load()` are possible
+            // with the same middlewares
+            $this->middlewares = $middlewares;
         } catch (Throwable $t) {
             if (!!$this->options['throwOnError']) {
                 throw $t;
