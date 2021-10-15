@@ -42,11 +42,11 @@ class HTMLProcessor implements MiddlewareHandlerInterface
     /**
      * Adds middleware
      *
-     * @param  $middleware
+     * @param MiddlewareInterface $middleware
      *
      * @return self
      */
-    public function addMiddleware($middleware): self
+    public function addMiddleware(MiddlewareInterface $middleware): self
     {
         $this->middlewares->enqueue($middleware);
         
